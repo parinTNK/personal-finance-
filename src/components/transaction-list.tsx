@@ -212,7 +212,7 @@ export default function TransactionList({ refreshTrigger, onTransactionDeleted }
                 <button
                   onClick={() => handleDeleteTransaction(transaction.id)}
                   disabled={deletingIds.has(transaction.id)}
-                  className="opacity-0 group-hover:opacity-100 p-2 rounded-xl hover:bg-red-50 transition-all duration-200 text-red-500 hover:text-red-600 disabled:opacity-50"
+                  className="group-hover:opacity-100 p-2 rounded-xl "
                   title="Delete transaction"
                 >
                   {deletingIds.has(transaction.id) ? (
