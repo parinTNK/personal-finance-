@@ -57,7 +57,7 @@ export default function TransactionForm({ onTransactionAdded }: TransactionFormP
   }
 
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-lg border border-slate-200 relative z-10">
+    <div className="bg-white rounded-3xl p-8 border border-slate-200 relative z-10">
       <h2 className="text-xl font-bold mb-6 text-slate-900 text-center">Add New Transaction</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">

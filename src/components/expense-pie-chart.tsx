@@ -38,14 +38,18 @@ export default function ExpensePieChart({ refreshTrigger }: ExpensePieChartProps
     try {
       const now = new Date()
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+      
+      // Format dates properly to ensure all times are included
+      const startDate = startOfMonth.toISOString().split('T')[0]
+      const endDate = endOfMonth.toISOString().split('T')[0]
 
       const { data, error } = await supabase
         .from('transactions')
         .select('category, amount')
         .eq('kind', 'expense')
-        .gte('occurred_at', startOfMonth.toISOString().split('T')[0])
-        .lte('occurred_at', endOfMonth.toISOString().split('T')[0])
+        .gte('occurred_at', startDate)
+        .lte('occurred_at', endDate)
 
       if (error) {
         console.error('Error fetching expense data:', error)

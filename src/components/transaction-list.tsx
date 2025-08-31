@@ -156,85 +156,196 @@ export default function TransactionList({ refreshTrigger, onTransactionDeleted }
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {transactions.map((transaction) => (
             <div
               key={transaction.id}
-              className={`flex items-center justify-between p-6 rounded-2xl border border-slate-100 hover:border-slate-200 transition-all duration-200 hover:shadow-md group ${
-                deletingIds.has(transaction.id) ? 'opacity-50 pointer-events-none' : ''
-              }`}
+              className={`relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group ${
+                transaction.kind === 'income'
+                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:border-green-300'
+                  : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200 hover:border-red-300'
+              } ${deletingIds.has(transaction.id) ? 'opacity-50 pointer-events-none' : ''}`}
             >
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <div
-                    className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                      transaction.kind === 'income' 
-                        ? 'bg-green-500' 
-                        : 'bg-red-500'
-                    }`}
-                  >
-                    <span className="text-white text-xs font-bold">
-                      {transaction.kind === 'income' ? '+' : '-'}
-                    </span>
-                  </div>
-                  
-                  <span className="text-sm font-medium text-slate-500">
-                    {formatDate(transaction.occurred_at)}
-                  </span>
-                  
-                  {transaction.category && (
-                    <span className="text-xs bg-slate-100 px-3 py-1 rounded-full text-slate-600 font-medium">
-                      {transaction.category}
-                    </span>
-                  )}
-                </div>
-                
-                {transaction.note && (
-                  <div className="text-sm text-slate-600 ml-7">
-                    {transaction.note}
-                  </div>
-                )}
-              </div>
+              {/* Left accent bar */}
+              <div
+                className={`absolute left-0 top-0 bottom-0 w-1 ${
+                  transaction.kind === 'income' ? 'bg-green-500' : 'bg-red-500'
+                }`}
+              />
               
-              <div className="flex items-center gap-3 ml-4">
-                <div className="text-right">
-                  <div
-                    className={`font-bold text-lg ${
-                      transaction.kind === 'income'
-                        ? 'text-green-600'
-                        : 'text-red-600'
-                    }`}
-                  >
-                    {formatAmount(transaction.amount, transaction.kind)}
+              <div className="p-4 sm:p-5 pl-5 sm:pl-6">
+                {/* Mobile layout: stacked */}
+                <div className="block sm:hidden">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      {/* Transaction type icon */}
+                      <div
+                        className={`flex items-center justify-center w-8 h-8 rounded-full shadow-sm ${
+                          transaction.kind === 'income'
+                            ? 'bg-green-500 text-white'
+                            : 'bg-red-500 text-white'
+                        }`}
+                      >
+                        <span className="text-sm font-bold">
+                          {transaction.kind === 'income' ? '↗' : '↙'}
+                        </span>
+                      </div>
+                      
+                      <div>
+                        <div className="text-base font-semibold text-slate-900 mb-1">
+                          {formatDate(transaction.occurred_at)}
+                        </div>
+                        {transaction.category && (
+                          <span className={`text-xs px-2 py-1 rounded-full font-medium border ${
+                            transaction.kind === 'income'
+                              ? 'bg-green-100 text-green-700 border-green-200'
+                              : 'bg-red-100 text-red-700 border-red-200'
+                          }`}>
+                            {transaction.category}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Delete button for mobile */}
+                    <button
+                      onClick={() => handleDeleteTransaction(transaction.id)}
+                      disabled={deletingIds.has(transaction.id)}
+                      className="p-2 rounded-lg bg-white/50 border border-slate-200 transition-all duration-200"
+                      title="Delete transaction"
+                    >
+                      {deletingIds.has(transaction.id) ? (
+                        <span className="text-sm">⏳</span>
+                      ) : (
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-slate-500"
+                        >
+                          <polyline points="3,6 5,6 21,6"></polyline>
+                          <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  
+                  {/* Amount and note row for mobile */}
+                  <div className="flex items-end justify-between">
+                    <div className="flex-1 mr-4">
+                      {transaction.note && (
+                        <div className="text-sm text-slate-600 mb-1">
+                          {transaction.note}
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      className={`text-xl font-bold ${
+                        transaction.kind === 'income'
+                          ? 'text-green-600'
+                          : 'text-red-600'
+                      }`}
+                    >
+                      {formatAmount(transaction.amount, transaction.kind)}
+                    </div>
                   </div>
                 </div>
-                
-                <button
-                  onClick={() => handleDeleteTransaction(transaction.id)}
-                  disabled={deletingIds.has(transaction.id)}
-                  className="group-hover:opacity-100 p-2 rounded-xl "
-                  title="Delete transaction"
-                >
-                  {deletingIds.has(transaction.id) ? (
-                    <span className="text-sm">⏳</span>
-                  ) : (
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+
+                {/* Desktop layout: horizontal */}
+                <div className="hidden sm:flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-2">
+                      {/* Transaction type icon */}
+                      <div
+                        className={`flex items-center justify-center w-10 h-10 rounded-full shadow-sm ${
+                          transaction.kind === 'income'
+                            ? 'bg-green-500 text-white'
+                            : 'bg-red-500 text-white'
+                        }`}
+                      >
+                        <span className="text-lg font-bold">
+                          {transaction.kind === 'income' ? '↗' : '↙'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex-1">
+                        {/* Date and category row */}
+                        <div className="flex items-center gap-3 mb-1">
+                          <span className="text-lg font-semibold text-slate-900">
+                            {formatDate(transaction.occurred_at)}
+                          </span>
+                          
+                          {transaction.category && (
+                            <span className={`text-xs px-3 py-1.5 rounded-full font-medium border ${
+                              transaction.kind === 'income'
+                                ? 'bg-green-100 text-green-700 border-green-200'
+                                : 'bg-red-100 text-red-700 border-red-200'
+                            }`}>
+                              {transaction.category}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {/* Note */}
+                        {transaction.note && (
+                          <div className="text-sm text-slate-600 mt-1">
+                            {transaction.note}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Amount and delete button for desktop */}
+                  <div className="flex items-center gap-4 ml-4">
+                    <div className="text-right">
+                      <div
+                        className={`text-2xl font-bold ${
+                          transaction.kind === 'income'
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }`}
+                      >
+                        {formatAmount(transaction.amount, transaction.kind)}
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={() => handleDeleteTransaction(transaction.id)}
+                      disabled={deletingIds.has(transaction.id)}
+                      className="opacity-0 group-hover:opacity-100 p-3 rounded-xl bg-white/50 hover:bg-white/80 border border-slate-200 hover:border-slate-300 transition-all duration-200 hover:shadow-sm"
+                      title="Delete transaction"
                     >
-                      <polyline points="3,6 5,6 21,6"></polyline>
-                      <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                      <line x1="10" y1="11" x2="10" y2="17"></line>
-                      <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                  )}
-                </button>
+                      {deletingIds.has(transaction.id) ? (
+                        <span className="text-lg">⏳</span>
+                      ) : (
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-slate-500 hover:text-red-500 transition-colors"
+                        >
+                          <polyline points="3,6 5,6 21,6"></polyline>
+                          <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
